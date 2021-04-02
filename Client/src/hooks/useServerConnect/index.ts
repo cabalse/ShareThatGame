@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 
-import { LogInInformation } from "../../components/LogIn";
+import { LogInInformationType } from "../../components/LogIn";
 import socket from "../../sockets/getSocket";
 import { v4 as uuidv4 } from "uuid";
+
+type ServerAuthRespType = {
+  authentication: boolean;
+  message: string;
+};
+
+export type LogInStatusType = {
+  loggedIn: boolean;
+  message: string;
+};
 
 export type MessageType = {
   timeStamp: number;
@@ -11,7 +21,10 @@ export type MessageType = {
 };
 
 export default function useServerConnect(): [
-  (logInInfo: LogInInformation, callback: () => void) => void,
+  (
+    logInInfo: LogInInformationType,
+    callback: (logInStatus: LogInStatusType) => void
+  ) => void,
   MessageType[],
   string
 ] {
@@ -28,15 +41,18 @@ export default function useServerConnect(): [
     return n;
   };
 
-  const logIn = (logInInfo: LogInInformation, callback: () => void) => {
+  const logIn = (
+    logInInfo: LogInInformationType,
+    callback: (logInStatus: LogInStatusType) => void
+  ) => {
     socketIO.connect();
     socketIO.emit("authentication", {
       username: uuidv4(),
       password: logInInfo.password,
       room: logInInfo.room,
     });
-    socketIO.on("authentication_resp", (resp) => {
-      if (resp) {
+    socketIO.on("authentication_resp", (resp: ServerAuthRespType) => {
+      if (resp.authentication) {
         socketIO.onAny((event, ...args) => {
           setMessages((prevValue) => {
             let newArray = [...prevValue];
@@ -49,7 +65,9 @@ export default function useServerConnect(): [
           });
           setMessage(event);
         });
-        callback();
+        callback({ loggedIn: true, message: "OK" });
+      } else {
+        callback({ loggedIn: false, message: resp.message });
       }
     });
   };

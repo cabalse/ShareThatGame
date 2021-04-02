@@ -1,41 +1,58 @@
-import { ConnectionInfoType, Context } from "./../../context";
-import { useContext, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import GameRooms from "../GameRooms";
 import React from "react";
+import useGameRoomList from "../../hooks/useGameRoomList/useGameRoomList";
 
-export type LogInInformation = { room: string; password: string | undefined };
+export type LogInInformationType = {
+  room: string;
+  roomID: string;
+  password: string | undefined;
+};
 
 type Props = {
-  onLogin: (logInInfo: LogInInformation) => void;
+  onLogin: (logInInfo: LogInInformationType) => void;
+  displayError: string;
 };
 
 export default function LogIn(props: Props) {
-  const ctx = useContext(Context);
   const [roomId, setRoomId] = useState("0");
+  const [logInError, setLogInError] = useState("");
   const pwdRef = useRef<HTMLInputElement>(null);
+  const [gameRoomList, isLoading] = useGameRoomList();
+  useEffect(() => {
+    setLogInError(props.displayError);
+  }, [props.displayError]);
   const handleLoginClick = () => {
-    ctx.setConnectionInformation(
-      (prevState: ConnectionInfoType): ConnectionInfoType => {
-        return {
-          ...prevState,
-          connected: true,
-        };
-      }
-    );
-    props.onLogin({ room: roomId, password: pwdRef.current?.value });
+    let room = gameRoomList.filter((room) => String(room.id) === roomId);
+    props.onLogin({
+      room: room[0].title,
+      roomID: roomId,
+      password: pwdRef.current?.value,
+    });
   };
   return (
     <div>
-      <div>
-        GameRoom: <GameRooms onChange={(id) => setRoomId(id)} />
-      </div>
-      <div>
-        Password: <input type="password" ref={pwdRef} />
-      </div>
-      <div>
-        <button onClick={() => handleLoginClick()}>LogIn</button>
-      </div>
+      {isLoading ? (
+        <span>Loading ...</span>
+      ) : (
+        <>
+          <div>
+            GameRoom:
+            <GameRooms
+              gameRoomList={gameRoomList}
+              onChange={(id) => setRoomId(id)}
+            />
+          </div>
+          <div>
+            Password: <input type="password" ref={pwdRef} />
+            {logInError !== "" ? <span>{logInError}</span> : null}
+          </div>
+          <div>
+            <button onClick={() => handleLoginClick()}>LogIn</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

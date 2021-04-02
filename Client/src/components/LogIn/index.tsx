@@ -1,2 +1,2 @@
 export { default } from "./LogIn";
-export type { LogInInformation } from "./LogIn";
+export type { LogInInformationType } from "./LogIn";

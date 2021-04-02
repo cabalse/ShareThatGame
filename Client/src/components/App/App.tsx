@@ -2,27 +2,36 @@ import "./App.css";
 
 import { Col, Container, Row } from "react-bootstrap";
 import { ConnectionInfoType, Context } from "./../../context";
-import LogIn, { LogInInformation } from "../LogIn";
+import LogIn, { LogInInformationType } from "../LogIn";
+import useServerConnect, {
+  LogInStatusType,
+} from "./../../hooks/useServerConnect";
 
 import Header from "../Header";
-import useServerConnect from "./../../hooks/useServerConnect";
+import { useState } from "react";
 import useStoreContext from "./../../context";
 
 function App() {
+  const [loginError, setLoginError] = useState("");
   const ctx = useStoreContext();
   const [logIn, messages, message] = useServerConnect();
-  const handleLogIn = (logInInfo: LogInInformation) => {
-    logIn(logInInfo, () => {
-      console.log("Loggin in");
-      ctx.setConnectionInformation(
-        (prevState: ConnectionInfoType): ConnectionInfoType => {
-          return {
-            ...prevState,
-            userName: "Kalle Anka",
-            gameRoom: "Ankeborg",
-          };
-        }
-      );
+  const handleLogIn = (logInInfo: LogInInformationType) => {
+    logIn(logInInfo, (logInStatus: LogInStatusType) => {
+      if (logInStatus.loggedIn) {
+        console.log("LoggedIn", logInStatus);
+        ctx.setConnectionInformation(
+          (prevState: ConnectionInfoType): ConnectionInfoType => {
+            return {
+              ...prevState,
+              connected: true,
+              gameRoom: logInInfo.room,
+            };
+          }
+        );
+        setLoginError("");
+      } else {
+        setLoginError(logInStatus.message);
+      }
     });
   };
   return (
@@ -38,7 +47,10 @@ function App() {
         <Row>
           <Col>
             <LogIn
-              onLogin={(logInInfo: LogInInformation) => handleLogIn(logInInfo)}
+              displayError={loginError}
+              onLogin={(logInInfo: LogInInformationType) =>
+                handleLogIn(logInInfo)
+              }
             />
           </Col>
         </Row>

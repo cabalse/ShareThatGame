@@ -9,9 +9,17 @@ class Socket {
       console.log("New client connected id:" + id);
 
       socket.on("authentication", (authObject) => {
-        if (true) {
-          socket.emit("authentication_resp", true);
+        if (authObject.password === "1") {
+          socket.emit("authentication_resp", {
+            authentication: true,
+            message: "OK",
+          });
           socket.join(authObject.room);
+        } else {
+          socket.emit("authentication_resp", {
+            authentication: false,
+            message: "Wrong password!!!",
+          });
         }
       });
 
