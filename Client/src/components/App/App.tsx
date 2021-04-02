@@ -1,20 +1,32 @@
 import "./App.css";
 
 import { Col, Container, Row } from "react-bootstrap";
-import { Context, useContextStore } from "./../../context";
-import useServerConnect, { message } from "../../hooks/useServerConnect";
+import { ConnectionInfoType, Context } from "./../../context";
+import LogIn, { LogInInformation } from "../LogIn";
 
 import Header from "../Header";
-import { useState } from "react";
+import useServerConnect from "./../../hooks/useServerConnect";
+import useStoreContext from "./../../context";
 
 function App() {
-  const contextStore = useContextStore();
-  const [response, setResponse] = useState("");
-  useServerConnect("ID", (obj: message) => {
-    setResponse(obj.message);
-  });
+  const ctx = useStoreContext();
+  const [logIn, messages, message] = useServerConnect();
+  const handleLogIn = (logInInfo: LogInInformation) => {
+    logIn(logInInfo, () => {
+      console.log("Loggin in");
+      ctx.setConnectionInformation(
+        (prevState: ConnectionInfoType): ConnectionInfoType => {
+          return {
+            ...prevState,
+            userName: "Kalle Anka",
+            gameRoom: "Ankeborg",
+          };
+        }
+      );
+    });
+  };
   return (
-    <Context.Provider value={contextStore}>
+    <Context.Provider value={ctx}>
       <Container fluid={true} className="noPadding">
         <Row noGutters>
           <Col>
@@ -25,7 +37,21 @@ function App() {
       <Container>
         <Row>
           <Col>
-            It's <time dateTime={response}>{response}</time>
+            <LogIn
+              onLogin={(logInInfo: LogInInformation) => handleLogIn(logInInfo)}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>Message - {message}</Col>
+        </Row>
+        <Row>
+          <Col>
+            {messages.map((message) => (
+              <div>
+                {message.timeStamp} - {message.event} - {message.args[0]}
+              </div>
+            ))}
           </Col>
         </Row>
       </Container>

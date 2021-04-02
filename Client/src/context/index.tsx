@@ -2,22 +2,44 @@ import React, { useState } from "react";
 
 const DEFAULT_NAVIGATION = "main";
 
-export type store = {
-  selectedNavigation: string;
-  setSelectedNavigation: (arg: string) => void;
+export type ConnectionInfoType = {
+  administrator: boolean;
+  connected: boolean;
+  connectionID: string;
+  userName: string;
+  gameRoom: string;
 };
 
-export const Context = React.createContext<store>({
-  selectedNavigation: DEFAULT_NAVIGATION,
-  setSelectedNavigation: (arg: string) => null,
-});
+export type StoreType = {
+  connectionInformation: ConnectionInfoType;
+  setConnectionInformation: React.Dispatch<
+    React.SetStateAction<ConnectionInfoType>
+  >;
+};
 
-export function useContextStore(): store {
-  const [selectedNavigation, setSelectedNavigation] = useState(
-    DEFAULT_NAVIGATION
+const connectionInfoDefault = {
+  administrator: false,
+  connected: false,
+  connectionID: "",
+  userName: "",
+  gameRoom: "",
+};
+
+const storeDefault = {
+  connectionInformation: connectionInfoDefault,
+  setConnectionInformation: () => null,
+};
+
+export const Context = React.createContext<StoreType>(storeDefault);
+
+const useContextStore = (): StoreType => {
+  const [conInfo, setConInfo] = useState<ConnectionInfoType>(
+    connectionInfoDefault
   );
   return {
-    selectedNavigation: selectedNavigation,
-    setSelectedNavigation: setSelectedNavigation,
+    connectionInformation: conInfo,
+    setConnectionInformation: setConInfo,
   };
-}
+};
+
+export default useContextStore;

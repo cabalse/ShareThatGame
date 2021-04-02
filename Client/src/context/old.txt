@@ -1,0 +1,57 @@
+import React, { useState } from "react";
+
+const DEFAULT_NAVIGATION = "main";
+
+export type ConnectionInfoType = {
+  gameRoom: string;
+};
+
+export type UserAuthInfoType = {
+  userName: string;
+  authorized: boolean;
+  connection: ConnectionInfoType;
+};
+
+export type StoreType = {
+  test: string;
+  setTest: (state: string) => void;
+  userAuthInfo: UserAuthInfoType;
+  setUserAuthInfo: React.Dispatch<React.SetStateAction<UserAuthInfoType>>;
+  selectedNavigation: string;
+  setSelectedNavigation: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const defaultUserAuthInfo: UserAuthInfoType = {
+  userName: "",
+  authorized: false,
+  connection: { gameRoom: "" },
+};
+
+const storeDefault = {
+  test: "",
+  setTest: () => console.log("FUCK!"),
+  userAuthInfo: defaultUserAuthInfo,
+  setUserAuthInfo: () => null,
+  selectedNavigation: DEFAULT_NAVIGATION,
+  setSelectedNavigation: () => null,
+};
+
+export const Context = React.createContext<StoreType>(storeDefault);
+
+export function useContextStore(): StoreType {
+  const [test, setTest] = useState("Test");
+  const [userAuthInfo, setUserAuthInfo] = useState<UserAuthInfoType>(
+    defaultUserAuthInfo
+  );
+  const [selectedNavigation, setSelectedNavigation] = useState(
+    DEFAULT_NAVIGATION
+  );
+  return {
+    test: test,
+    setTest: setTest,
+    userAuthInfo: userAuthInfo,
+    setUserAuthInfo: setUserAuthInfo,
+    selectedNavigation: selectedNavigation,
+    setSelectedNavigation: setSelectedNavigation,
+  };
+}
