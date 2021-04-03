@@ -44,7 +44,7 @@ export default function useServerConnect(): [
   const logIn = (
     logInInfo: LogInInformationType,
     callback: (logInStatus: LogInStatusType) => void
-  ) => {
+  ): void => {
     socketIO.connect();
     socketIO.emit("authentication", {
       username: uuidv4(),

@@ -12,28 +12,8 @@ import { useState } from "react";
 import useStoreContext from "./../../context";
 
 function App() {
-  const [loginError, setLoginError] = useState("");
   const ctx = useStoreContext();
   const [logIn, messages, message] = useServerConnect();
-  const handleLogIn = (logInInfo: LogInInformationType) => {
-    logIn(logInInfo, (logInStatus: LogInStatusType) => {
-      if (logInStatus.loggedIn) {
-        console.log("LoggedIn", logInStatus);
-        ctx.setConnectionInformation(
-          (prevState: ConnectionInfoType): ConnectionInfoType => {
-            return {
-              ...prevState,
-              connected: true,
-              gameRoom: logInInfo.room,
-            };
-          }
-        );
-        setLoginError("");
-      } else {
-        setLoginError(logInStatus.message);
-      }
-    });
-  };
   return (
     <Context.Provider value={ctx}>
       <Container fluid={true} className="noPadding">
@@ -46,12 +26,7 @@ function App() {
       <Container>
         <Row>
           <Col>
-            <LogIn
-              displayError={loginError}
-              onLogin={(logInInfo: LogInInformationType) =>
-                handleLogIn(logInInfo)
-              }
-            />
+            <LogIn logIn={logIn} />
           </Col>
         </Row>
         <Row>
