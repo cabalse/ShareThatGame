@@ -1,47 +1,34 @@
 import "./App.css";
 
-import { Col, Container, Row } from "react-bootstrap";
-import { ConnectionInfoType, Context } from "./../../context";
-import LogIn, { LogInInformationType } from "../LogIn";
-import useServerConnect, {
-  LogInStatusType,
-} from "./../../hooks/useServerConnect";
+import { Context, STATUS } from "./../../context";
 
 import Header from "../Header";
-import { useState } from "react";
+import InitInformation from "../InitInformation";
+import LogIn from "../LogIn";
+import MainArea from "../MainArea";
+import useServerConnect from "./../../hooks/useServerConnect";
 import useStoreContext from "./../../context";
 
 function App() {
   const ctx = useStoreContext();
   const [logIn, messages, message] = useServerConnect();
+
+  const switchRender = (key: STATUS) => {
+    switch (key) {
+      case STATUS.LOGIN:
+        return <LogIn logIn={logIn} />;
+      case STATUS.INIT:
+        return <InitInformation />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Context.Provider value={ctx}>
-      <Container fluid={true} className="noPadding">
-        <Row noGutters>
-          <Col>
-            <Header />
-          </Col>
-        </Row>
-      </Container>
-      <Container>
-        <Row>
-          <Col>
-            <LogIn logIn={logIn} />
-          </Col>
-        </Row>
-        <Row>
-          <Col>Message - {message}</Col>
-        </Row>
-        <Row>
-          <Col>
-            {messages.map((message) => (
-              <div>
-                {message.timeStamp} - {message.event} - {message.args[0]}
-              </div>
-            ))}
-          </Col>
-        </Row>
-      </Container>
+      {switchRender(ctx.status)}
+      <Header />
+      <MainArea />
     </Context.Provider>
   );
 }

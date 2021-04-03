@@ -1,6 +1,8 @@
-import { Button, Modal } from "react-bootstrap";
-import { ConnectionInfoType, Context } from "../../context";
-import { useContext, useEffect, useRef, useState } from "react";
+import "./LogIn.css";
+
+import { Button, Col, Container, Modal, Row } from "react-bootstrap";
+import { ConnectionInfoType, Context, STATUS } from "../../context";
+import { useContext, useRef, useState } from "react";
 
 import GameRooms from "../GameRooms";
 import { LogInStatusType } from "./../../hooks/useServerConnect";
@@ -23,7 +25,6 @@ type Props = {
 export default function LogIn(props: Props) {
   const [roomId, setRoomId] = useState("0");
   const [loginError, setLoginError] = useState("");
-  const [showModal, setShowModal] = useState(true);
   const [gameRoomList, isLoading] = useGameRoomList();
   const ctx = useContext(Context);
   const pwdRef = useRef<HTMLInputElement>(null);
@@ -38,7 +39,6 @@ export default function LogIn(props: Props) {
       },
       (logInStatus: LogInStatusType) => {
         if (logInStatus.loggedIn) {
-          console.log("LoggedIn", logInStatus);
           ctx.setConnectionInformation(
             (prevState: ConnectionInfoType): ConnectionInfoType => {
               return {
@@ -48,7 +48,7 @@ export default function LogIn(props: Props) {
               };
             }
           );
-          setShowModal(false);
+          ctx.setStatus(STATUS.INIT);
         } else {
           setLoginError(logInStatus.message);
         }
@@ -56,39 +56,46 @@ export default function LogIn(props: Props) {
     );
   };
 
-  const handleModalClose = () => {
-    console.log("Want to close!");
-  };
-
   return (
-    <Modal show={showModal} onHide={handleModalClose}>
+    <Modal show={true}>
       <Modal.Header closeButton>
         <Modal.Title>ShareTheGame</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div>
-          Welcome to ShareTheGame. Select a game below and enter the password.
-          Have fun!
-        </div>
-        <div>
+        <Container>
+          <Row>
+            <Col>
+              Welcome to ShareTheGame. Select a game below and enter the
+              password. Have fun!
+            </Col>
+          </Row>
           {isLoading ? (
-            <span>Loading ...</span>
+            <Row>
+              <Col>Loading information...</Col>
+            </Row>
           ) : (
             <>
-              <div>
-                GameRoom:
-                <GameRooms
-                  gameRoomList={gameRoomList}
-                  onChange={(id) => setRoomId(id)}
-                />
-              </div>
-              <div>
-                Password: <input type="password" ref={pwdRef} />
-                <span>{loginError}</span>
-              </div>
+              <Row>
+                <Col>Game room:</Col>
+                <Col>
+                  <GameRooms
+                    gameRoomList={gameRoomList}
+                    onChange={(id) => setRoomId(id)}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col>Password:</Col>
+                <Col>
+                  <input type="password" ref={pwdRef} />
+                </Col>
+              </Row>
+              <Row>
+                <Col>{loginError}</Col>
+              </Row>
             </>
           )}
-        </div>
+        </Container>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="primary" onClick={handleLoginClick}>
