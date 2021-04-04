@@ -12,15 +12,15 @@ import useStoreContext from "./../../context";
 
 function App() {
   const ctx = useStoreContext();
-  const messageBroker = (type: string, message: string) => {
-    ctx.setAlive(message);
+  const messageBroker = (type: string, messages: string[]) => {
+    ctx.setAlive(String(messages[0]));
   };
-  const [logIn, messages, message] = useServerConnect(messageBroker);
+  const establishConnection = useServerConnect(messageBroker);
 
   const switchRender = (key: STATUS) => {
     switch (key) {
       case STATUS.LOGIN:
-        return <LogIn logIn={logIn} />;
+        return <LogIn establishConnection={establishConnection} />;
       case STATUS.INIT:
         return <InitInformation />;
       default:

@@ -21,15 +21,11 @@ export type MessageType = {
 };
 
 export default function useServerConnect(
-  messageBroker: (type: string, message: string) => void
-): [
-  (
-    logInInfo: LogInInformationType,
-    callback: (logInStatus: LogInStatusType) => void
-  ) => void,
-  MessageType[],
-  string
-] {
+  messageBroker: (type: string, messages: string[]) => void
+): (
+  logInInfo: LogInInformationType,
+  callback: (logInStatus: LogInStatusType) => void
+) => void {
   let socketIO = socket;
 
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -43,7 +39,7 @@ export default function useServerConnect(
     return n;
   };
 
-  const logIn = (
+  const establishConnection = (
     logInInfo: LogInInformationType,
     callback: (logInStatus: LogInStatusType) => void
   ): void => {
@@ -72,10 +68,10 @@ export default function useServerConnect(
         callback({ loggedIn: false, message: resp.message });
       }
     });
-    socketIO.on("alive update", (resp: number) => {
-      messageBroker("alive update", String(resp));
+    socketIO.onAny((event, ...args) => {
+      messageBroker(event, args);
     });
   };
 
-  return [logIn, messages, message];
+  return establishConnection;
 }

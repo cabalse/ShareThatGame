@@ -16,7 +16,7 @@ export type LogInInformationType = {
 };
 
 type Props = {
-  logIn: (
+  establishConnection: (
     logInInfo: LogInInformationType,
     callback: (logInStatus: LogInStatusType) => void
   ) => void;
@@ -31,7 +31,7 @@ export default function LogIn(props: Props) {
 
   const handleLoginClick = () => {
     let room = gameRoomList.filter((room) => String(room.id) === roomId);
-    props.logIn(
+    props.establishConnection(
       {
         room: room[0].title,
         roomID: roomId,
