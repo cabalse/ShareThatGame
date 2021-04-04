@@ -5,8 +5,8 @@ import Title from "./Title";
 
 export default function Header() {
   return (
-    <Container fluid={true} className="noPadding">
-      <Row noGutters>
+    <Container>
+      <Row>
         <Col>
           <Title />
           <Menu />

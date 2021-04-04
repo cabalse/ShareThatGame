@@ -28,6 +28,8 @@ export type StoreType = {
   setStatus: React.Dispatch<React.SetStateAction<STATUS>>;
   selectedNavigation: NAVIGATION;
   setSelectedNavigation: React.Dispatch<React.SetStateAction<NAVIGATION>>;
+  alive: string;
+  setAlive: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const connectionInfoDefault = {
@@ -45,6 +47,8 @@ const storeDefault = {
   setStatus: () => null,
   selectedNavigation: NAVIGATION.DEFAULT,
   setSelectedNavigation: () => null,
+  alive: "0",
+  setAlive: () => null,
 };
 
 export const Context = React.createContext<StoreType>(storeDefault);
@@ -57,6 +61,7 @@ const useContextStore = (): StoreType => {
   const [selectedNavigation, setSelectedNavigation] = useState<NAVIGATION>(
     NAVIGATION.DEFAULT
   );
+  const [alive, setAlive] = useState<string>("");
   return {
     connectionInformation: conInfo,
     setConnectionInformation: setConInfo,
@@ -64,6 +69,8 @@ const useContextStore = (): StoreType => {
     setStatus: setStatus,
     selectedNavigation: selectedNavigation,
     setSelectedNavigation: setSelectedNavigation,
+    alive: alive,
+    setAlive: setAlive,
   };
 };
 

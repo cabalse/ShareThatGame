@@ -20,7 +20,9 @@ export type MessageType = {
   args: string[];
 };
 
-export default function useServerConnect(): [
+export default function useServerConnect(
+  messageBroker: (type: string, message: string) => void
+): [
   (
     logInInfo: LogInInformationType,
     callback: (logInStatus: LogInStatusType) => void
@@ -49,7 +51,7 @@ export default function useServerConnect(): [
     socketIO.emit("authentication", {
       username: uuidv4(),
       password: logInInfo.password,
-      room: logInInfo.room,
+      room: logInInfo.roomID,
     });
     socketIO.on("authentication_resp", (resp: ServerAuthRespType) => {
       if (resp.authentication) {
@@ -69,6 +71,9 @@ export default function useServerConnect(): [
       } else {
         callback({ loggedIn: false, message: resp.message });
       }
+    });
+    socketIO.on("alive update", (resp: number) => {
+      messageBroker("alive update", String(resp));
     });
   };
 

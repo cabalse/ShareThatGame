@@ -1,43 +1,60 @@
+const GameRooms = require("./../modules/gameRooms");
+
 class Socket {
   constructor(io) {
     this.io = io;
-    this.interval = 0;
-    setInterval(() => this.interval++, 1000);
 
     this.io.on("connection", (socket) => {
       let id = socket.id;
-      console.log("New client connected id:" + id);
+      console.log("Connecting ", id);
 
       socket.on("authentication", (authObject) => {
-        if (authObject.password === "1") {
+        let adminAuth = GameRooms.adminAuthorizeForGameRoom(
+          authObject.room,
+          authObject.password
+        );
+        let userAuth = GameRooms.authorizeForGameRoom(
+          authObject.room,
+          authObject.password
+        );
+
+        if (adminAuth | userAuth) {
+          let room = GameRooms.getGameRoomByID(authObject.room);
+
+          if (adminAuth) {
+            room.admin = id;
+            room.active = true;
+          } else {
+            room.users.push(id);
+          }
+
           socket.emit("authentication_resp", {
+            administrator: adminAuth,
             authentication: true,
             message: "OK",
           });
-          socket.join(authObject.room);
+
+          socket.join(room.title);
         } else {
           socket.emit("authentication_resp", {
+            administrator: false,
             authentication: false,
             message: "Wrong password!!!",
           });
         }
       });
 
-      setInterval(() => {
-        socket.emit("General message " + this.interval, this.interval);
-      }, 10000);
-
-      setInterval(() => {
-        socket.to("1").emit("GR1 " + this.interval, this.interval);
-      }, 5000);
-
-      setInterval(() => {
-        socket.to("2").emit("GR2 " + this.interval, this.interval);
-      }, 6000);
-
       socket.on("disconnect", () => {
         console.log("Client disconnected with id " + id);
       });
+
+      setInterval(() => {
+        let rooms = GameRooms.getGameRooms();
+        rooms.forEach((room) => {
+          if (room.active)
+            socket.to(room.title).emit("alive update", room.activeTime);
+        });
+      }, 1000);
     });
   }
 }

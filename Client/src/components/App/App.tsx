@@ -1,5 +1,6 @@
 import "./App.css";
 
+import { Col, Container, Row } from "react-bootstrap";
 import { Context, STATUS } from "./../../context";
 
 import Header from "../Header";
@@ -11,7 +12,10 @@ import useStoreContext from "./../../context";
 
 function App() {
   const ctx = useStoreContext();
-  const [logIn, messages, message] = useServerConnect();
+  const messageBroker = (type: string, message: string) => {
+    ctx.setAlive(message);
+  };
+  const [logIn, messages, message] = useServerConnect(messageBroker);
 
   const switchRender = (key: STATUS) => {
     switch (key) {
@@ -25,11 +29,17 @@ function App() {
   };
 
   return (
-    <Context.Provider value={ctx}>
-      {switchRender(ctx.status)}
-      <Header />
-      <MainArea />
-    </Context.Provider>
+    <Container fluid={true} className="noPadding">
+      <Row noGutters>
+        <Col>
+          <Context.Provider value={ctx}>
+            {switchRender(ctx.status)}
+            <Header />
+            <MainArea />
+          </Context.Provider>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

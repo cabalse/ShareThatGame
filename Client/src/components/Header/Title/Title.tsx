@@ -2,6 +2,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import React, { useContext } from "react";
 
 import { Context } from "../../../context";
+import Time from "../Time";
 
 export default function Title() {
   const ctx = useContext(Context);
@@ -15,6 +16,9 @@ export default function Title() {
           ) : (
             <span>Not Connected</span>
           )}
+        </Col>
+        <Col>
+          <Time />
         </Col>
       </Row>
     </Container>
